@@ -708,11 +708,693 @@ plot(xs, dpois(xs,m),
         col="blue")
 #}
 
-##
-### Visualizing the distribution
+## The exponential distribution
+  
+# The rate at which goals are scored in a football match is on average m.
+#Let X be the number of goals scored in a match.
+# X ~ Poi(m)
+  
+l <- 2
+
+#pdf (Exp(l)) 4
+x <- 4
+dexp(x, l)
+
+### Visualizing the pdf
+xs <- seq(0, 10, by=0.01)
+
+par(mfrow=c(2,2))
+
+plot(xs, dexp(xs,l), type="l", col="blue", ylab="f(x)", main="PDF of Exp(2)")
+
+#This doesn't work!!!
+curve(dexp(xs, rate = l), 0, 10, col="green", ylab="f(x)", main="PDF of Exp(2)")
+
+plot(xs, type="n", xlim=c(0,10), ylim=c(0,2), xlab="x", ylab="f(x)", main="PDF of Exp(2)")
+lines(xs, dexp(xs,l), type="l", col="purple")
+
+par(mfrow=c(1,1)) 
+
+#### Varying lambda
+l <- 2
+plot(xs, type="n", xlim=c(0,10), ylim=c(0,2), xlab="x", ylab="f(x)", main="PDF of Exp(2)")
+lines(xs, dexp(xs,l), type="l", col="purple")
+
+l <- 1
+lines(xs, dexp(xs,l), type="l", col="blue", lty=2)
+
+l <- 0.5
+lines(xs, dexp(xs,l), type="l", col="blue", lty=3)
+
+legend("topright",
+       title="PDF of Exp(l)",
+       c("l=2", "l=1", "l=0.5"),
+       lty=c(1,2,3),
+       col=c("purple", "blue", "red"))
+
+### Computing theoretical probabilities
+
+#P(X <= 4) = P(X < 4) as distribution continuous
+l <- 2
+pexp(4, l)
+
+#P(X > 4)
+1 - pexp(4, l)
+
+#P(2 < X <= 3) = P(X <= 3) - P(X < 2)
+pexp(3,l) - pexp(2, l)
+
+### Visualizing the cdf
+xs <- seq(0, 10, by=0.01)
+
+par(mfrow=c(2,2))
+
+plot(xs, pexp(xs,l), type="l", col="blue", ylab="F(x)", main="CDF of Exp(2)")
+
+#This doesn't work!!!
+curve(pexp(xs, rate = l), 0, 10, col="green", ylab="F(x)", main="CDF of Exp(2)")
+
+plot(xs, type="n", xlim=c(0,10), ylim=c(0,1),
+     xlab="xs", ylab="F(x)", main="PDF of Exp(2)")
+lines(xs, pexp(xs,l), type="l", col="purple")
+
+par(mfrow=c(1,1)) 
+
+### Computing theoretical quantiles
+l <- 2
+x <- 4
+c(pexp(4, l), qexp(0.9996645, l))
+
+#Find x: P(X <= x) = 0.9
+qexp(0.9, l)
+#check
+pexp(1.151293, l)
+
+#Find x: P(X > x) = 0.6
+qexp(1-0.6, l)
+#check
+pexp(0.2554128, l)
+
+ys <- seq(0, 1, by=0.01)
+plot(ys, qexp(ys,l), type="l", xlab="cumulative probability", ylab="x")
+
+
+#The median
+c(qexp(0.5, l), pexp(0.3465736,l))
+
+#The interquartile range
+qexp(0.75, l)-qexp(0.25,l)
+
+### Running simulations
+
+#Suppose our random number is u.
+#We want x : cdf (Exp(l)) = u
+#A solution to the above equation is x := -log(1 - u)/l = qexp(u, l)
+l <- 2
+u <- 0.384
+qexp(u,l) 
+
+set.seed(31)
+n <- 1000
+S <- rexp(n, l)
+#table(S) unhelpful as continuous
+hist(S, prob=TRUE, xlab="simulated value", main="simulations from Exp(2)")
+xs <- seq(0, 3.5, by=0.01)
+lines(xs, dexp(xs, l), type="l", col="blue")
+
+
+### Computing empirical probabilities
+#P(X <= 2)
+c(length(S[S<=2])/length(S), pexp(2,l))
+
+#P(X > 1)
+c(length(S[S>1])/length(S), 1 -pexp(1,l))
+
+### Computing empirical moments
+c(mean(S), 1/l)
+c(var(S), 1/l^2)
+
+skew <- sum((S-mean(S))^3)/length(S)
+c(skew/sd(S)^3, 2)
+
+### Computing empirical quantiles
+c(median(S), qexp(0.5,l))
+
+c(quantile(S, 0.75)-quantile(S,0.25),
+  qexp(0.75, l)-qexp(0.25,l))
+
+
+### Long-term trend of the mean
+lam <- 2
+set.seed(31)
+S <- rexp(5000, lam)
+avgs <- rep(0, 5000)
+for (k in 1:5000) {
+  avgs[k] <- mean(S[1:k])
+}
+
+xs <- 1:5000
+plot(xs, avgs[1:5000])
+abline(h=1/lam, col="red", lty=2, lwd=2)
+  
+## The gamma distribution
+a <- 3
+l <- 2
+x <- 4
+#pdf (Gam(a,l)) x
+dgamma(x, a, l)
+
+
+### Visualizing the pdf
+xs <- seq(0, 10, by=0.01)
+
+par(mfrow=c(2,2))
+
+plot(xs, dgamma(xs,a, l), type="l", col="blue", ylab="f(x)", main="PDF of Gam(3,2)")
+
+#This doesn't work!!!
+curve(dgamma(xs, a, l), 0, 10, col="green", ylab="f(x)", main="PDF of Gam(3,2)")
+
+plot(xs, type="n",
+     xlim=c(0,10), ylim=c(0,0.6),
+     xlab="x", ylab="f(x)", main="PDF of Gam(3,2)")
+lines(xs, dgamma(xs,a,l), type="l", col="purple")
+
+par(mfrow=c(1,1)) 
+
+### Varying the parameter(s)
+
+l <- 2
+xs <- seq(0, 10, 0.01)
+
+plot(xs, type="n",
+     xlim=c(0,10), ylim=c(0,0.6),
+     xlab="x", ylab="f(x)", main="PDF of Gam(3,2)")
+
+a <- 3
+lines(xs, dgamma(xs, a, l), type="l", col="purple", lty=1)
+
+a <- 5
+lines(xs, dgamma(xs, a, l), type="l", col="blue", lty=2)
+
+a <- 10
+lines(xs, dgamma(xs, a, l), type="l", col="red", lty=3)
+
+a <- 0.5
+lines(xs, dgamma(xs, a, l), type="l", col="green", lty=4)
+
+
+### Visualizing the cdf
+a <- 3
+l <- 2
+xs <- seq(0, 10, by=0.01)
+plot(xs, pgamma(xs, a,l), type="l", col="blue",
+     ylab="cdf (Gam(a,l)) x", main="CDF of Gamma(3,2)")
+
+### Computing theoretical probabilities
+a <- 3
+l <- 2
+
+#calculate P(X < 1.5)
+pgamma(1.5, a, l)
+
+#calculate P(X > 3)
+1 - pgamma(3, a, l)
+
+### Computing theoretical quantiles
+#Find x such that P(X <= x) = 0.5768099
+qgamma(0.5768099, a, l)
+
+#Find x such that P(X > x) = 0.3, check answer
+c(qgamma(1-0.3, a, l), 1 - pgamma(1.807784, a,l))
+
+#The median
+c(qgamma(0.5, a, l), pgamma(1.33703, a,l))
+
+### Running simulations
+set.seed(43)
+n <- 500
+S <- rgamma(n, a, l)
+
+hist(S, prob=TRUE, ylim=c(0,0.6),
+     xlab="simulated value", main="simulations from a Gamma(3,2))")
+xs <- seq(0, 10, by=0.01)
+lines(xs, dgamma(xs,a,l), type="l", col="blue")
+
+### Computing empirical probabilities
+#P(<1.5)
+c(length(S[S < 1.5])/length(S), pgamma(1.5, a,l))
+
+#P(>3)
+c(length(S[S > 3])/length(S), 1-pgamma(3, a,l))
+
+
+### Computing empirical quantiles
+c(quantile(S,0.75), qgamma(0.75, a,l))
+### Computing empirical moments
+c(mean(S), a/l)
+
+### Long-term trend of the mean
+xbars <- rep(0,500)
+
+for (k in 1:500) {
+  xbars[k] <- mean(S[1:k])
+}
+
+xs <- 1:500
+plot(xs, xbars)
+abline(h = a/l, col="red", lty=2, lwd=2)
+
+## The chi-square distrbution
+#Chi(v) = Gamma(v/2, 0.5)
+v <- 4
+a <- v/2
+l <- 1/2
+
+x <- 4
+c(dchisq(x,v), dgamma(x, v/2, 1/2))
+
+### Visualizing the pdf
+v <- 4
+xs <- seq(0,20, by=0.01)
+plot(xs, dchisq(xs,v), type="l", col="blue",
+     ylab="pdf (Chi(v)) x", main="PDF of Chi(4)")
+
+v <- 6
+lines(xs, dchisq(xs, v), type="l", col="purple", lty=2)
+
+v <- 10
+lines(xs, dchisq(xs, v), type="l", col="red", lty=2)
+
+# v = 2 => Chi(v) = Gamma(1, 0.5) =  Exp(0.5)
+v <- 2
+lines(xs, dchisq(xs, v), type="l", col="green", lty=2)
+
+### Visualizing the cdf
+### Computing theoretical probabilities
+v <- 4
+
+#P(X < 1.5)
+pchisq(1.5, v)
+
+#P(X > 3)
+1 - pchisq(3,v)
+
+### Computing theoretical quantiles
+# x: P(X <= x) = 0.1733585
+c(qchisq(0.1733585, v), pchisq(1.5, v))
+
+#x : P(X <= x) = 0.5 i.e. median
+c(qchisq(0.5, v), pchisq(3.356694, v))
+
+### Running simulations
+set.seed(47)
+
+n <- 1000
+S <- rchisq(n,v)
+
+hist(S, prob=TRUE, ylim=c(0,0.2),
+     xlab="Simulated value", main="simulations from Chi(4)")
+
+range(S)
+xs <- seq(0, 25, by=0.01)
+lines(xs, dchisq(xs, v), type="l", col="blue")
+
+### Computing empirical probabilities
+#P(X < 1.5)
+c(length(S[S < 1.5])/length(S), pchisq(1.5, v))
+
+### Computing empirical quantiles
+### Computing empirical moments
+c(mean(S), v)
+
+c(var(S) , 2 * v)
+
+### X ~ Gam(a, l) == 2 * l * x = Chi(2 * a)
+a <- 2
+l <- 1.5
+x <- 4
+#P(X > 4) = P(2 * l * X > 12)
+c(1 - pgamma(x, a, l), 1 - pchisq(2 * l * x, 2 * a))
+
+## The continuous uniform distribution
+a <- 0
+b <- 2
+#pdf (Uni(a,b)) x = 1/(b-a)
+c(dunif(0.6, a, b), 1/(b-a))
+
+### Visualizing the pdf
+### Varying the parameter(s)
+### Visualizing the cdf
+### Computing theoretical probabilities
+#P(X < 1.2)
+a <- 0
+b <- 2
+punif(1.2, a, b)
+
+#P(X > 0.3)
+1 - punif(0.3,a,b)
+
+### Computing theoretical quantiles
+#Find x : P(X <= x) = 0.6
+c(qunif(0.6,a,b), punif(1.2,a,b))
+
+### Running simulations
+#If we generate a random number u from Uni(0,1)
+#we can simulate x from distribution with cdf F 
+#by solving x:  u = F.x
+
+#Simulate 1000 values from an Exp(0.5) distribution.
+set.seed(53)
+u <- runif(1000, 0, 1)
+#Solve x: u = cdf (Exp(0.5)) = 1 - exp(-0.5x)
+# x = -2 * ln(1 - u)
+x <- -2 * log(1 - u)
+hist(x, prob=TRUE)
+range(x)
+xs <- seq(0, 15, by=0.1)
+lines(xs, dexp(xs, 0.5), type="l", col="blue")
+
+### Computing empirical probabilities
+### Computing empirical quantiles
+### Computing empirical moments
+### Long-term trend of the mean
+
+## The beta distribution
+a <- 2
+b <- 3
+x <- 0.6
+c(dbeta(x, a, b), 0, 0)
+
+### Visualizing the pdf
+xs <- seq(0,1, by=0.01)
+plot(xs, dbeta(xs, a, b), type="l", col="blue",
+     ylab="pdf x", main="PDF of Beta(2,3)")
+
+### Varying the parameter(s)
+### Visualizing the cdf
+
+### Computing theoretical probabilities
+a <- 2
+b <- 3
+
+#P(X < 0.8)
+pbeta(0.8, a, b)
+
+#P(X > 0.3)
+1 - pbeta(0.3, a, b)
+
+### Computing theoretical quantiles
+#Find x: P(X <= x) = 0.6
+c(qbeta(0.6, a, b), pbeta(0.4445, a,b))
+
+### Running simulations
+set.seed(53)
+
+n <- 1000
+S <- rbeta(n, a, b)
+
+hist(S, prob=TRUE, ylim=c(0,1.8),
+     xlab="simulated value", main="simulations from a Beta(a,b)")
+
+range(S)
+xs <- seq(0, 1, by = 0.01)
+lines(xs, dbeta(xs, a, b), type="l", col="blue")
+
+### Computing empirical probabilities
+a <- 2
+b <- 3
+
+#P(X > 0.3)
+c(length(S[S>0.3])/length(S), 1 - pbeta(0.3,a,b))
+
+### Computing empirical quantiles
+#x : P(X <= x) = 0.5 
+c(median(S), qbeta(0.5, a, b))
+
+### Computing empirical moments
+c(mean(S), a/(a+b))
+### Long-term trend of the mean
+
+## The normal distribution
+m <- 10
+s <- 2
+
+x <- 8
+dnorm(x, m, s)
+
+### Visualizations
+xs <- seq(3, 17, by=0.01)
+plot(xs, dnorm(xs, m, s), type="l", col="blue",
+     ylab="pdf (Norm(m, s^2)) x", main="PDF of N(10,2^2)")
+
+
+### Varying the parameter(s)
+### Visualizing the cdf
+### Computing theoretical probabilities
+#P(X < 12)
+pnorm(12, m, s)
+
+#P(X > 9)
+1-pnorm(9, m, s)
+
+### Computing theoretical quantiles
+#Find x: P(X <= x) = 0.8, check
+c(qnorm(0.8, m, s), pnorm(11.68324,m, s))
+
+### Running simulations
+set.seed(59)
+
+n <- 1000
+S <- rnorm(n,m,s)
+hist(S, prob=TRUE, xlab="simulated value", main="simulations from N(10, 2^2)")
+range(S)
+xs <- seq(3,16, by=0.01)
+lines(xs, dnorm(xs, m, s), type="l", col="blue")
+
+### Computing empirical probabilities
+#P(X > 9)
+c(length(S[S>9])/length(S), 1-pnorm(9, m, s))
+
+### Computing empirical quantiles
+#x: P(X < x) = 0.8
+c(quantile(S,0.8), qnorm(0.8, m, s))
+
+### Computing empirical moments
+c(mean(S), m)
+c(sd(S), s)
+
+### Generating random simulations with exact mean and sd
+set.seed(59)
+
+n <- 1000
+Z <- rnorm(n, 0, 1)
+c(mean(Z), sd(Z))
+
+Z <- (Z - mean(Z))/sd(Z)
+c(mean(Z), sd(Z))
+
+S <- Z*s + m
+c(mean(S), sd(S))
+
+## The lognormal distribution
+m <- 5
+s <- 2
+
+x <- 50
+dlnorm(x, m, s)
+
+### Visualizing 
+xs <- seq(0, 100, by=0.1)
+plot(xs, dlnorm(xs, m, s), type="l", col="blue",
+     ylab="pdf (LogN(m, s^2)) x", main="PDF of LogN(5, 2^2)")
+### Varying the parameter(s)
+### Visualizing the cdf
+
+### Computing theoretical probabilities
+#P(X <  100)
+plnorm(100, m, s)
+
+#P(X > 500)
+1 - plnorm(500, m, s)
+
+### Computing theoretical quantiles
+# x : P(X <= x) = 0.9
+qlnorm(0.9, m, s)
+
+### Running simulations
+set.seed(59)
+
+n <- 1000
+S <- rlnorm(n, m, s)
+hist(S, prob=TRUE, 
+     xlab="simulated value", main="simulations from LogN(5, 2^2)")
+round(range(S,1))
+xs <- seq(0, 55000, by=1)
+lines(xs, dlnorm(xs, m, s), type="l", col="blue")
+
+### Computing empirical probabilities
+#P(X < 100)
+c(length(S[S<100])/length(S), plnorm(100, m, s))
+
+### Computing empirical quantiles
+c(quantile(S, 0.9), qlnorm(0.9,m,s))
+
+### Computing empirical moments
+c(mean(S), exp(m+0.5 * s^2))
+c(var(S), exp(m*2 + s^2) * exp(s^2)-1) #difference warrants using larger n in rlnorm
+
+### Computing simulations with exact mean and sd
+
+## The t distribution
+v <- 10
+
+x <- 2
+dt(x, v
+   )
+### Visualizing the pdf
+xs <- seq(-4, 4, by=0.01)
+plot(xs, dt(xs,v), type="l", col="blue",
+     ylab="pdf x", main="PDF of Stu(10)")
+
+### Varying the parameter(s)
+### Visualizing the cdf
+### Computing theoretical probabilities
+#P(X < -0.5)
+pt(-0.5, v)
+
+#P(X > 1.5)
+1 - pt(1.5, v)
+
+### Computing theoretical quantiles
+# x: P(X <= x) = 0.7, check
+c(qt(0.7, v), pt(0.541528, v))
+
+### Running simulations
+set.seed(61)
+
+n <- 1000
+S <- rt(n, v)
+hist(S, prob=TRUE, ylim=c(0,0.4), 
+     xlab="simulated value", main="simulations from Stu(10)")
+round(range(S,1))
+xs <- seq(-5, 4, by=0.01)
+lines(xs, dt(xs, v), type="l", col="blue")
+
+### Computing empirical probabilities
+#P(X < -0.5)
+c(length(S[S < -0.5])/length(S), pt(-0.5, v))
+
+### Computing empirical quantiles
+c(quantile(S, 0.7), qt(0.7, v))
+
+### Computing empirical moments
+c(mean(S))
+c(var(S))
+
+
+## The Fisher "F" distribution
+v <- 2
+w <- 3
+
+x <- 2
+df(x, v, w)
+
+### Visualizing the pdf
+xs <- seq(0, 4, by=0.01)
+plot(xs, df(xs,v, w), type="l", col="blue",
+     ylab="pdf x", main="PDF of Fisher(2,3)")
+
+### Varying the parameter(s)
+### Visualizing the cdf
+
+### Computing theoretical probabilities
+#P(X < 0.8)
+pf(0.8, v, w)
+
+#P(X > 2)
+1 - pf(2, v,w)
+
+### Computing theoretical quantiles
+# x: P(X <= x) = 0.6, check
+c(qf(0.6, v, w), pf(1.263024, v, w))
+
+### Running simulations
+set.seed(63)
+
+n <- 10000
+S <- rf(n, v, w)
+hist(S, prob=TRUE,
+     xlab="simulated value", main="simulations from Fisher(2,3)")
+round(range(S,1))
+xs <- seq(0, 511, by=0.01)
+lines(xs, df(xs, v, w), type="l", col="blue")
+
+### Computing empirical probabilities
+#P(X > 2)
+c(length(S[S > 2])/length(S), 1 - pf(2, v,w))
+
+### Computing empirical quantiles
+c(quantile(S, 0.6), qf(0.6, v, w))
+
+## Conditional to unconditional moments
+#Annual claim numbers, X, come from a Poission distribution
+#with mean M, M ~ Gamma(a,b)
+
+#Find the empirical mean and variance for the annual claims.
+a <- 5
+b <- 2
+
+set.seed(71)
+n <- 10000
+xs <- rep(0,n)
+for (k in 1:n) {
+  m <- rgamma(1, a, b)
+  xs[k] <- rpois(1,m)
+}
+
+# E.X
+#= 
+# E(E(X|M))
+#= X|M ~ Poi(M), 
+# E(Poi(M))
+#= E(Poi(M))=M
+# E(M)
+#= M ~ Gamma(a,b)
+# E(Gamma(a,b))
+#= tables
+# a/b
+c(mean(xs), a/b)
+
+# V.X
+#=
+# E(V.(X|M)) + V(E(X|M))
+#= 
+# E(V(Poi(M))) + V(E(Poi.M))
+#=
+# E.M + V.M
+#= M ~ Gamma(a,b)
+# a/b + a/b^2
+c(var(xs), a/b + a/b^2)
+
+### Visualizing the conditional distribution
+range(xs)
+hist(xs, prob=TRUE, breaks=c(-0.5:14.5))
+
+#X ~ Poi(Gamma(a,b)) = Nbin2(a, b/(b+1))
+lines(0:14, dnbinom(0:14, a, b/(b+1)), type="o", col="blue")
+
+c(length(xs[xs <= 6])/length(xs), pnbinom(6, a, b/(b+1)))
+
+
+## 
+### Visualizing the pdf
+### Varying the parameter(s)
+### Visualizing the cdf
 ### Computing theoretical probabilities
 ### Computing theoretical quantiles
 ### Running simulations
 ### Computing empirical probabilities
 ### Computing empirical quantiles
 ### Computing empirical moments
+### Long-term trend of the mean
